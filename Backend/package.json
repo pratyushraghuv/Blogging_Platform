@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "nodemon server.js"
   },
-  "author": "Pratyush",
+  "author": "Pratyush Rghuvanshi",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",

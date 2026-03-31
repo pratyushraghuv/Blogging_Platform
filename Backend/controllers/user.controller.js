@@ -1,5 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
+
 
 
 
@@ -59,5 +61,50 @@ export const register = async (req, res) => {
     }
 }
 
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if(!email || !password) {
+            return res.status(400).json({
+                message: "All fields are required"
+            })
+        }
 
+        let user = await User.findOne({email: email})
+        if(!user) {
+            return res.status(400).json({
+                message: "Invalid credentials"
+            })
+        }
 
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if(!isPasswordValid){
+            return res.status(400).json({
+                message: "Invalid credentials"
+            })
+        }
+
+        const token = await jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        return res.status(200).cookie("token", token, {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite:"strict"}).json({
+            message: `Welcome back, ${user.firstName}`,
+            user
+        })
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to login"
+        })
+    }
+}
+
+export const logout = async (_, res) => {
+    try {
+        return res.status(200).cookie("token", "", {maxAge: 0}).json({
+            message: "Logged out successfully"
+        })
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
