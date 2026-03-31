@@ -46,15 +46,21 @@ It provides a secure and scalable environment where users can create, manage, an
 
 ---
 
-## 📁 Project Structure
-
-```bash
-/client        # React frontend
-/server        # Node.js backend
-/models        # Database schemas
-/routes        # API routes
-/controllers   # Business logic
-```
+📦 Project Root
+├── 📁 client
+│   └── ⚛️ React Frontend
+│
+├── 📁 server
+│   └── 🌐 Node.js Backend
+│
+├── 📁 models
+│   └── 🗄️ Database Schemas
+│
+├── 📁 routes
+│   └── 🔗 API Routes
+│
+└── 📁 controllers
+    └── 🧠 Business Logic
 
 ---
 
@@ -99,13 +105,6 @@ It provides a secure and scalable environment where users can create, manage, an
 * ❤️ Like & Share Features
 * 🔔 Real-time Notifications
 * 📱 Mobile App Integration
-
----
-
-## 👨‍💻 Authors
-
-**Pratyush Raghuvanshi**
-**Collaborative Project** 🤝
 
 ---
 
