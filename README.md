@@ -46,6 +46,7 @@ It provides a secure and scalable environment where users can create, manage, an
 
 ---
 
+```plaintext
 📦 Project Root
 ├── 📁 client
 │   └── ⚛️ React Frontend
@@ -61,6 +62,7 @@ It provides a secure and scalable environment where users can create, manage, an
 │
 └── 📁 controllers
     └── 🧠 Business Logic
+```
 
 ---
 
