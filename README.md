@@ -31,20 +31,30 @@ It provides a secure and scalable environment where users can create, manage, an
 
 **Frontend**
 
-* React.js
-* Axios
-* CSS / Bootstrap
+- React.js  
+- React Router DOM  
+- Tailwind CSS  
+- Axios  
+- Shadcn/ui  
+- CSS / Bootstrap  
 
 **Backend**
 
-* Node.js
-* Express.js
+- Node.js  
+- Express.js  
+- Multer (for file uploads)  
+- Cloudinary (for media storage)  
+- Mongoose (MongoDB ORM)  
+- Cookie Parser  
+- Bcrypt (for password hashing)  
 
 **Database**
 
-* MongoDB (Mongoose)
+- MongoDB (via Mongoose)
 
 ---
+
+## 📂 Folder Structure
 
 ```plaintext
 📦 Project Root
