@@ -108,3 +108,61 @@ export const logout = async (_, res) => {
         
     }
 }
+
+export const updateProfile = async(req, res) => {
+    try {
+        const userId= req.id
+        const {firstName, lastName, occupation, bio, instagram, facebook, linkedin, github} = req.body;
+        const file = req.file;
+
+        const fileUri = getDataUri(file)
+        let cloudResponse = await cloudinary.uploader.upload(fileUri)
+
+        const user = await User.findById(userId).select("-password")
+        
+        if(!user){
+            return res.status(404).json({
+                message:"User not found",
+            })
+        }
+
+        // updating data
+        if(firstName) user.firstName = firstName
+        if(lastName) user.lastName = lastName
+        if(occupation) user.occupation = occupation
+        if(instagram) user.instagram = instagram
+        if(facebook) user.facebook = facebook
+        if(linkedin) user.linkedin = linkedin
+        if(github) user.github = github
+        if(bio) user.bio = bio
+        if(file) user.photoUrl = cloudResponse.secure_url
+
+        await user.save()
+        return res.status(200).json({
+            message:"profile updated successfully",
+            user
+        })
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to update profile"
+        })
+    }
+}
+
+export const getAllUsers = async (req, res) => {
+    try {
+      const users = await User.find().select('-password'); // exclude password field
+      res.status(200).json({
+        message: "User list fetched successfully",
+        total: users.length,
+        users
+      });
+    } catch (error) {
+      console.error("Error fetching user list:", error);
+      res.status(500).json({
+        message: "Failed to fetch users"
+      });
+    }
+};
