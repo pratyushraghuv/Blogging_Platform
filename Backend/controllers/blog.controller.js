@@ -1,8 +1,9 @@
 import { Blog } from "../models/blog.model.js";
+import Comment from "../models/comment.model.js";
 import cloudinary from "../utils/cloudinary.js";
 import getDataUri from "../utils/dataUri.js";
 
-
+// Create a new blog post
 export const createBlog = async (req,res) => {
     try {
         const {title, category} = req.body;
@@ -19,6 +20,7 @@ export const createBlog = async (req,res) => {
         })
 
         return res.status(201).json({
+            success:true,
             blog,
             message:"Blog Created Successfully."
         })
@@ -92,6 +94,7 @@ export const getPublishedBlog = async (_,res) => {
             })
         }
         return res.status(200).json({
+            success:true,
             blogs,
         })
     } catch (error) {
@@ -120,6 +123,7 @@ export const togglePublishBlog = async (req,res) => {
 
         const statusMessage = blog.isPublished ? "Published" : "Unpublished";
         return res.status(200).json({
+            success:true,
             message:`Blog is ${statusMessage}`
         });
     } catch (error) {
@@ -151,7 +155,7 @@ export const getOwnBlogs = async (req, res) => {
         });;
 
         if (!blogs) {
-            return res.status(404).json({ message: "No blogs found.", blogs: [], });
+            return res.status(404).json({ message: "No blogs found.", blogs: [], success: false });
         }
 
         return res.status(200).json({ blogs, success: true });
@@ -160,26 +164,29 @@ export const getOwnBlogs = async (req, res) => {
     }
 };
 
+// Delete a blog post
 export const deleteBlog = async (req, res) => {
     try {
         const blogId = req.params.id;
         const authorId = req.id
         const blog = await Blog.findById(blogId);
         if (!blog) {
-            return res.status(404).json({  message: "Blog not found" });
+            return res.status(404).json({ success: false, message: "Blog not found" });
         }
         if (blog.author.toString() !== authorId) {
-            return res.status(403).json({  message: 'Unauthorized to delete this blog' });
+            return res.status(403).json({ success: false, message: 'Unauthorized to delete this blog' });
         }
 
         // Delete blog
         await Blog.findByIdAndDelete(blogId);
 
+        // Delete related comments
+        await Comment.deleteMany({ postId: blogId });
 
 
-        res.status(200).json({  message: "Blog deleted successfully" });
+        res.status(200).json({ success: true, message: "Blog deleted successfully" });
     } catch (error) {
-        res.status(500).json({  message: "Error deleting blog", error: error.message });
+        res.status(500).json({ success: false, message: "Error deleting blog", error: error.message });
     }
 };
 
@@ -188,7 +195,7 @@ export const likeBlog = async (req, res) => {
         const blogId = req.params.id;
         const likeKrneWalaUserKiId = req.id;
         const blog = await Blog.findById(blogId).populate({path:'likes'});
-        if (!blog) return res.status(404).json({ message: 'Blog not found' })
+        if (!blog) return res.status(404).json({ message: 'Blog not found', success: false })
 
         // Check if user already liked the blog
         // const alreadyLiked = blog.likes.includes(userId);
@@ -198,7 +205,7 @@ export const likeBlog = async (req, res) => {
         await blog.save();
 
 
-        return res.status(200).json({ message: 'Blog liked', blog});
+        return res.status(200).json({ message: 'Blog liked', blog, success: true });
     } catch (error) {
         console.log(error);
 
@@ -211,13 +218,13 @@ export const dislikeBlog = async (req, res) => {
         const likeKrneWalaUserKiId = req.id;
         const blogId = req.params.id;
         const blog = await Blog.findById(blogId);
-        if (!blog) return res.status(404).json({ message: 'post not found'})
+        if (!blog) return res.status(404).json({ message: 'post not found', success: false })
 
         //dislike logic started
         await blog.updateOne({ $pull: { likes: likeKrneWalaUserKiId } });
         await blog.save();
 
-        return res.status(200).json({ message: 'Blog disliked', blog });
+        return res.status(200).json({ message: 'Blog disliked', blog, success: true });
     } catch (error) {
         console.log(error);
 

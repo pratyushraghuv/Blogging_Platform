@@ -1,8 +1,8 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
-
-
+import getDataUri from "../utils/dataUri.js";
+import cloudinary from "../utils/cloudinary.js";
 
 
 export const register = async (req, res) => {
@@ -10,6 +10,7 @@ export const register = async (req, res) => {
         const { firstName, lastName, email,  password } = req.body;
         if (!firstName || !lastName || !email ||  !password) {
             return res.status(400).json({
+                success: false,
                 message: "All fields are required"
             })
         }
@@ -17,12 +18,14 @@ export const register = async (req, res) => {
 
         if (!emailRegex.test(email)) {
             return res.status(400).json({
+                success: false,
                 message: "Invalid email"
             });
         }
 
         if (password.length < 6) {
             return res.status(400).json({
+                success: false,
                 message: "Password must be at least 6 characters"
             });
         }
@@ -49,63 +52,70 @@ export const register = async (req, res) => {
         })
 
         return res.status(201).json({
+            success: true,
             message: "Account Created Successfully"
         })
 
     } catch (error) {
         console.log(error);
         return res.status(500).json({
+            success: false,
             message: "Failed to register"
         })
 
     }
 }
 
-export const login = async (req, res) => {
+export const login = async(req, res) => {
     try {
-        const { email, password } = req.body;
-        if(!email || !password) {
+        const {email,  password } = req.body;
+        if (!email && !password) {
             return res.status(400).json({
+                success: false,
                 message: "All fields are required"
             })
         }
 
-        let user = await User.findOne({email: email})
-        if(!user) {
+        let user = await User.findOne({email});
+        if(!user){
             return res.status(400).json({
-                message: "Invalid credentials"
+                success:false,
+                message:"Incorrect email or password"
             })
         }
-
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if(!isPasswordValid){
-            return res.status(400).json({
-                message: "Invalid credentials"
+       
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+        if (!isPasswordValid) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Invalid Credentials" 
             })
         }
-
-        const token = await jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-        return res.status(200).cookie("token", token, {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite:"strict"}).json({
-            message: `Welcome back, ${user.firstName}`,
+        
+        const token = await jwt.sign({userId:user._id}, process.env.SECRET_KEY, { expiresIn: '1d' })
+        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: "strict" }).json({
+            success:true,
+            message:`Welcome back ${user.firstName}`,
             user
         })
-        
     } catch (error) {
         console.log(error);
         return res.status(500).json({
-            message: "Failed to login"
+            success: false,
+            message: "Failed to Login",           
         })
     }
+  
 }
 
 export const logout = async (_, res) => {
     try {
-        return res.status(200).cookie("token", "", {maxAge: 0}).json({
-            message: "Logged out successfully"
+        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+            message: "Logged out successfully.",
+            success: true
         })
     } catch (error) {
         console.log(error);
-        
     }
 }
 
@@ -123,6 +133,7 @@ export const updateProfile = async(req, res) => {
         if(!user){
             return res.status(404).json({
                 message:"User not found",
+                success:false
             })
         }
 
@@ -140,12 +151,14 @@ export const updateProfile = async(req, res) => {
         await user.save()
         return res.status(200).json({
             message:"profile updated successfully",
+            success:true,
             user
         })
         
     } catch (error) {
         console.log(error);
         return res.status(500).json({
+            success: false,
             message: "Failed to update profile"
         })
     }
@@ -155,6 +168,7 @@ export const getAllUsers = async (req, res) => {
     try {
       const users = await User.find().select('-password'); // exclude password field
       res.status(200).json({
+        success: true,
         message: "User list fetched successfully",
         total: users.length,
         users
@@ -162,7 +176,8 @@ export const getAllUsers = async (req, res) => {
     } catch (error) {
       console.error("Error fetching user list:", error);
       res.status(500).json({
+        success: false,
         message: "Failed to fetch users"
       });
     }
-};
+  };
