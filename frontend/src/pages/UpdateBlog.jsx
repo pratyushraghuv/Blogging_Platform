@@ -80,10 +80,12 @@ const UpdateBlog = () => {
             })
             if (res.data.success) {
                 toast.success(res.data.message)
-                // dispatch([...course, setCourse(res.data.course)])
-                console.log(blogData);
-
-
+                
+                // Update Redux state
+                const updatedBlog = blog.map(b => b._id === id ? res.data.blog : b);
+                dispatch(setBlog(updatedBlog));
+                
+                console.log("Blog updated successfully");
             }
         } catch (error) {
             console.log(error);

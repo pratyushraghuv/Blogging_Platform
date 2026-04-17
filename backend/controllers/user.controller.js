@@ -130,16 +130,27 @@ export const login = async (req, res) => {
   
 
 
-export const logout = async (_, res) => {
+export const logout = async (req, res) => {
     try {
-        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
-            message: "Logged out successfully.",
+        res.clearCookie("token", {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: false 
+        });
+
+        return res.status(200).json({
+            message: "Logged out successfully",
             success: true
-        })
+        });
+
     } catch (error) {
-        console.log(error);
+        console.log("LOGOUT ERROR:", error);
+        return res.status(500).json({
+            message: "Logout failed",
+            success: false
+        });
     }
-}
+};
 
 export const updateProfile = async(req, res) => {
     try {

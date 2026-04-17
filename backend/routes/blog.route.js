@@ -19,7 +19,7 @@ import {
 const router = express.Router();
 
 // CREATE BLOG
-router.post("/", createBlog);
+router.post("/", isAuthenticated, singleUpload, createBlog);
 
 // UPDATE BLOG
 router.put("/:blogId", updateBlog);

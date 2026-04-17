@@ -16,6 +16,10 @@ import Comments from './pages/Comments'
 import UpdateBlog from './pages/UpdateBlog'
 import ProtectedRoute from './components/ProtectedRoute'
 import SearchList from './pages/SearchList'
+import { useEffect } from "react";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setBlog } from "@/redux/blogSlice";
 
 const router = createBrowserRouter([
   {
@@ -94,11 +98,33 @@ const router = createBrowserRouter([
 ])
 
 const App = () => {
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/api/v1/blog/get-all-blogs"
+        );
+
+        if (res.data.success) {
+          dispatch(setBlog(res.data.blogs));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
+
   return (
     <>
       <RouterProvider router={router} />
     </>
   )
 }
+
 
 export default App
